@@ -1,0 +1,105 @@
+<!DOCTYPE html><html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Browser Info & Storage Viewer</title>
+    <style>
+        body { background: black; color: white; font-family: 'Signika', sans-serif; padding: 20px; }
+        pre { background: #222; padding: 10px; border-radius: 5px; color: #0f0; }
+    </style>
+</head>
+<body>
+    <h2>Browser Info & Storage Viewer</h2><h3>Cookies</h3>
+<pre id="cookies"></pre>
+
+<h3>Local Storage</h3>
+<pre id="localStorage"></pre>
+
+<h3>Session Storage</h3>
+<pre id="sessionStorage"></pre>
+
+<h3>Browser & Device Info</h3>
+<pre id="browserInfo"></pre>
+
+<h3>Advanced Browser Data</h3>
+<pre id="advancedInfo"></pre>
+
+<script>
+    function getAdvancedBrowserInfo() {
+        let browserData = {
+            userAgent: navigator.userAgent,
+            platform: navigator.platform,
+            language: navigator.language,
+            timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+            screenResolution: `${screen.width}x${screen.height}`,
+            deviceMemory: navigator.deviceMemory || "Unknown",
+            cpuCores: navigator.hardwareConcurrency || "Unknown",
+            onlineStatus: navigator.onLine ? "Online" : "Offline",
+            darkMode: window.matchMedia("(prefers-color-scheme: dark)").matches,
+            historyLength: history.length,
+            cookiesEnabled: navigator.cookieEnabled,
+            clipboardAccess: navigator.clipboard ? "Supported" : "Not Supported",
+            adBlockEnabled: typeof window.adsbygoogle === "undefined" ? "Yes" : "No",
+            maxTouchPoints: navigator.maxTouchPoints,
+            browserVendor: navigator.vendor,
+            colorDepth: screen.colorDepth,
+            pixelRatio: window.devicePixelRatio,
+            hardwareConcurrency: navigator.hardwareConcurrency,
+            webGLSupport: !!window.WebGLRenderingContext,
+            audioFingerprint: new (window.AudioContext || window.webkitAudioContext)().sampleRate,
+            batteryStatus: navigator.getBattery ? "Available" : "Not Supported",
+            locationAccess: navigator.geolocation ? "Supported" : "Not Supported",
+            connectionType: navigator.connection ? navigator.connection.effectiveType : "Unknown"
+        };
+
+        // Firefox Specific Details
+        if (typeof InstallTrigger !== 'undefined') {
+            browserData.browserName = "Firefox";
+            browserData.privateMode = (function () {
+                let db = indexedDB.open("test");
+                db.onerror = function () { browserData.privateMode = true; };
+                db.onsuccess = function () { browserData.privateMode = false; };
+            })();
+        }
+
+        // Chrome Specific Details
+        if (!!window.chrome && (!!window.chrome.webstore || !!window.chrome.runtime)) {
+            browserData.browserName = "Chrome";
+            browserData.isIncognito = new Promise(resolve => {
+                window.webkitRequestFileSystem(window.TEMPORARY, 100, () => resolve(false), () => resolve(true));
+            });
+        }
+
+        return browserData;
+    }
+
+    async function updateStorageView() {
+        document.getElementById("cookies").textContent = document.cookie || "No cookies found";
+        
+        let localData = {};
+        for (let key in localStorage) {
+            if (localStorage.hasOwnProperty(key)) {
+                localData[key] = localStorage.getItem(key);
+            }
+        }
+        document.getElementById("localStorage").textContent = JSON.stringify(localData, null, 4) || "No local storage data";
+        
+        let sessionData = {};
+        for (let key in sessionStorage) {
+            if (sessionStorage.hasOwnProperty(key)) {
+                sessionData[key] = sessionStorage.getItem(key);
+            }
+        }
+        document.getElementById("sessionStorage").textContent = JSON.stringify(sessionData, null, 4) || "No session storage data";
+        
+        let browserInfo = await getAdvancedBrowserInfo();
+        document.getElementById("browserInfo").textContent = JSON.stringify(browserInfo, null, 4);
+        document.getElementById("advancedInfo").textContent = JSON.stringify(browserInfo, null, 4);
+    }
+    
+    updateStorageView();
+    setInterval(updateStorageView, 2000);
+</script>
+
+</body>
+</html>
