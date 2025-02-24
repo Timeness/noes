@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Storage Viewer</title>
+    <title>Full Browser Data Viewer</title>
     <link href="https://fonts.googleapis.com/css2?family=Signika:wght@300;400;600&display=swap" rel="stylesheet">
     <style>
         body { 
@@ -18,6 +18,7 @@
             border-radius: 5px;
             color: #00ffcc;
             font-size: 16px;
+            overflow-x: auto;
         }
         h2, h3 {
             color: #ffcc00;
@@ -26,7 +27,7 @@
 </head>
 <body>
 
-    <h2>Storage Data Viewer</h2>
+    <h2>Full Browser Data Viewer</h2>
 
     <h3>Cookies</h3>
     <pre id="cookies"></pre>
@@ -37,12 +38,34 @@
     <h3>Session Storage</h3>
     <pre id="sessionStorage"></pre>
 
+    <h3>Browser & Device Information</h3>
+    <pre id="browserInfo"></pre>
+
+    <h3>Screen & Window Details</h3>
+    <pre id="screenInfo"></pre>
+
+    <h3>Geolocation (If Allowed)</h3>
+    <pre id="geoLocation">Fetching...</pre>
+
+    <h3>Network Details</h3>
+    <pre id="networkInfo">Fetching...</pre>
+
+    <h3>Battery Status</h3>
+    <pre id="batteryStatus">Fetching...</pre>
+
+    <h3>GPU (Graphics Card) Information</h3>
+    <pre id="gpuInfo">Fetching...</pre>
+
+    <h3>Installed Plugins</h3>
+    <pre id="pluginsInfo"></pre>
+
+    <h3>Touch Support</h3>
+    <pre id="touchSupport"></pre>
+
     <script>
         function updateStorageView() {
-            // Get Cookies
             document.getElementById("cookies").textContent = document.cookie || "No cookies found";
 
-            // Get Local Storage
             let localData = {};
             for (let key in localStorage) {
                 if (localStorage.hasOwnProperty(key)) {
@@ -51,7 +74,6 @@
             }
             document.getElementById("localStorage").textContent = JSON.stringify(localData, null, 4) || "No local storage data";
 
-            // Get Session Storage
             let sessionData = {};
             for (let key in sessionStorage) {
                 if (sessionStorage.hasOwnProperty(key)) {
@@ -59,12 +81,109 @@
                 }
             }
             document.getElementById("sessionStorage").textContent = JSON.stringify(sessionData, null, 4) || "No session storage data";
+
+            let browserData = {
+                "User Agent": navigator.userAgent,
+                "Platform": navigator.platform,
+                "Language": navigator.language,
+                "Online": navigator.onLine ? "Yes" : "No",
+                "Cookies Enabled": navigator.cookieEnabled ? "Yes" : "No",
+                "JavaScript Enabled": "Yes",
+                "Hardware Cores": navigator.hardwareConcurrency || "N/A",
+                "Device Memory": navigator.deviceMemory ? navigator.deviceMemory + " GB" : "N/A"
+            };
+            document.getElementById("browserInfo").textContent = JSON.stringify(browserData, null, 4);
+
+            let screenData = {
+                "Screen Width": screen.width,
+                "Screen Height": screen.height,
+                "Available Width": screen.availWidth,
+                "Available Height": screen.availHeight,
+                "Window Inner Width": window.innerWidth,
+                "Window Inner Height": window.innerHeight,
+                "Pixel Ratio": window.devicePixelRatio
+            };
+            document.getElementById("screenInfo").textContent = JSON.stringify(screenData, null, 4);
         }
 
-        // Initial Load
-        updateStorageView();
+        function getLocation() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    (position) => {
+                        document.getElementById("geoLocation").textContent = 
+                            `Latitude: ${position.coords.latitude}\nLongitude: ${position.coords.longitude}`;
+                    },
+                    (error) => {
+                        document.getElementById("geoLocation").textContent = "Location Access Denied.";
+                    }
+                );
+            } else {
+                document.getElementById("geoLocation").textContent = "Geolocation not supported.";
+            }
+        }
 
-        // Update every second to reflect changes
+        async function getNetworkInfo() {
+            try {
+                let response = await fetch("https://api64.ipify.org?format=json");
+                let data = await response.json();
+                document.getElementById("networkInfo").textContent = `Public IP: ${data.ip}`;
+            } catch (error) {
+                document.getElementById("networkInfo").textContent = "Unable to fetch IP address.";
+            }
+
+            let connection = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+            if (connection) {
+                document.getElementById("networkInfo").textContent += `\nConnection Type: ${connection.effectiveType}`;
+            }
+        }
+
+        function getBatteryStatus() {
+            if (navigator.getBattery) {
+                navigator.getBattery().then(battery => {
+                    document.getElementById("batteryStatus").textContent = 
+                        `Battery Level: ${battery.level * 100}%\nCharging: ${battery.charging ? "Yes" : "No"}`;
+                });
+            } else {
+                document.getElementById("batteryStatus").textContent = "Battery API not supported.";
+            }
+        }
+
+        function getGPUInfo() {
+            let canvas = document.createElement("canvas");
+            let gl = canvas.getContext("webgl") || canvas.getContext("experimental-webgl");
+            if (gl) {
+                let debugInfo = gl.getExtension("WEBGL_debug_renderer_info");
+                if (debugInfo) {
+                    document.getElementById("gpuInfo").textContent = 
+                        `GPU Vendor: ${gl.getParameter(debugInfo.UNMASKED_VENDOR_WEBGL)}\nGPU Renderer: ${gl.getParameter(debugInfo.UNMASKED_RENDERER_WEBGL)}`;
+                } else {
+                    document.getElementById("gpuInfo").textContent = "GPU Information not accessible.";
+                }
+            } else {
+                document.getElementById("gpuInfo").textContent = "WebGL not supported.";
+            }
+        }
+
+        function getPlugins() {
+            let plugins = [];
+            for (let i = 0; i < navigator.plugins.length; i++) {
+                plugins.push(navigator.plugins[i].name);
+            }
+            document.getElementById("pluginsInfo").textContent = plugins.length ? plugins.join("\n") : "No plugins detected.";
+        }
+
+        function getTouchSupport() {
+            document.getElementById("touchSupport").textContent = 
+                `Max Touch Points: ${navigator.maxTouchPoints}`;
+        }
+
+        updateStorageView();
+        getLocation();
+        getNetworkInfo();
+        getBatteryStatus();
+        getGPUInfo();
+        getPlugins();
+        getTouchSupport();
         setInterval(updateStorageView, 1000);
     </script>
 
