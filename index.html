@@ -1,1 +1,74 @@
-<html contenteditable>
+<!DOCTYPE html><html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Secure Admin System</title>
+    <style>
+        .hidden { display: none; }
+        #toast {
+            position: fixed;
+            bottom: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: red;
+            color: white;
+            padding: 10px;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div id="login-container">
+        <h2>Admin Login</h2>
+        <input type="password" id="password" placeholder="Enter Password">
+        <button onclick="validateLogin()">Login</button>
+        <p id="toast" class="hidden">Incorrect Password!</p>
+    </div>
+    <div id="admin-panel" class="hidden">
+        <h2>Admin Panel</h2>
+        <button onclick="initiateTransaction()">Initiate Transaction</button>
+        <p id="security-status"></p>
+    </div>
+    <script>
+        const admins = ["hashed_admin_1", "hashed_admin_2", "hashed_admin_3", "hashed_admin_4"];
+        const owner = "hashed_owner";
+        let failedAttempts = 0;function validateLogin() {
+        const password = document.getElementById("password").value;
+        const hashedPassword = hashPassword(password);
+        
+        if (admins.includes(hashedPassword) || hashedPassword === owner) {
+            document.getElementById("login-container").classList.add("hidden");
+            document.getElementById("admin-panel").classList.remove("hidden");
+        } else {
+            showToast("Incorrect Password!");
+            failedAttempts++;
+            if (failedAttempts >= 5) {
+                lockSystem();
+            }
+        }
+    }
+
+    function initiateTransaction() {
+        alert("Transaction initiated. All admins must sign.");
+    }
+
+    function lockSystem() {
+        localStorage.setItem("locked", true);
+        setTimeout(() => localStorage.removeItem("locked"), 12 * 60 * 60 * 1000);
+        showToast("System locked for 12 hours.");
+    }
+
+    function showToast(message) {
+        const toast = document.getElementById("toast");
+        toast.textContent = message;
+        toast.classList.remove("hidden");
+        setTimeout(() => toast.classList.add("hidden"), 3000);
+    }
+
+    function hashPassword(password) {
+        return btoa(password); // Simplified hashing, replace with stronger method
+    }
+</script>
+
+</body>
+</html>
