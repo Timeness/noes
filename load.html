@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Download File Example</title>
+</head>
+<body>
+
+  <button onclick="downloadFile()">Download Text File</button>
+
+  <script>
+    function downloadFile() {
+      const content = 'This is the content of the text file!';
+      const blob = new Blob([content], { type: 'text/plain' });
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = 'example.txt';
+      link.click();
+    }
+  </script>
+
+</body>
+</html>
