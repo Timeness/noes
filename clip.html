@@ -43,10 +43,27 @@
 <body>
 
     <h1>📋 Clipboard Viewer</h1>
-    <button onclick="readClipboard()">📥 Fetch Clipboard</button>
+    <button onclick="requestClipboardPermission()">📥 Fetch Clipboard</button>
     <div id="output">Clipboard content will appear here...</div>
 
     <script>
+        async function requestClipboardPermission() {
+            try {
+                // Request clipboard permission (this may not be needed in modern browsers, but it's a good practice)
+                const permission = await navigator.permissions.query({ name: "clipboard-read" });
+                
+                if (permission.state === "granted") {
+                    // If permission is granted, fetch the clipboard content
+                    readClipboard();
+                } else {
+                    alert("Clipboard access is denied. Please grant permission.");
+                }
+            } catch (err) {
+                console.error("Error requesting clipboard permission:", err);
+                alert("Clipboard access failed! Try again.");
+            }
+        }
+
         async function readClipboard() {
             try {
                 const clipboardItems = await navigator.clipboard.read();
