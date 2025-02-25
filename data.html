@@ -1,135 +1,42 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Nearby Wi-Fi Networks (With Details)</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      margin: 0;
-      padding: 0;
-    }
-    #map {
-      height: 100vh;
-      width: 100%;
-    }
-    #info {
-      position: absolute;
-      top: 10px;
-      left: 10px;
-      background-color: rgba(255, 255, 255, 0.7);
-      padding: 10px;
-      font-size: 16px;
-    }
-    .wifi-info {
-      margin: 10px 0;
-      padding: 10px;
-      background-color: #f0f0f0;
-      border-radius: 5px;
-    }
-  </style>
-  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
-  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Circle with Icon</title>
+    <style>
+        body {
+            margin: 0;
+            height: 100vh;
+            background-color: black;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: Arial, sans-serif;
+        }
+
+        .circle {
+            width: 150px;
+            height: 150px;
+            background-color: #333;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .material-symbols--fingerprint-sharp::after {
+            display: inline-block;
+            width: 24px;
+            height: 24px;
+            vertical-align: -0.125em;
+            content: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%23dec4ca' d='M12.025 4.475q2.825 0 5.15 1.213T21.25 9.3l-.8.6q-1.575-2.2-3.687-3.312t-4.738-1.113q-2.6 0-4.7 1.125T3.65 9.95l-.8-.575Q4.625 6.95 6.938 5.713t5.087-1.238m0 2.35q3.425 0 5.825 2.275t2.4 5.55q0 1.225-.888 2.075t-2.162.85q-1.3 0-2.2-.85t-.9-2.075q0-.8-.6-1.375t-1.475-.575t-1.475.575t-.6 1.375q0 2.375 1.425 4.012t4.2 2.463l-.25.975q-3.05-.775-4.712-2.713T8.95 14.65q0-1.225.9-2.087t2.175-.863t2.175.863t.9 2.087q0 .8.613 1.375t1.487.575q.85 0 1.45-.575t.6-1.375q0-2.85-2.1-4.85t-5.1-2t-5.1 2t-2.1 4.825q0 .875.188 1.875t.612 2.2l-.9.35q-.45-1.15-.675-2.25t-.225-2.15q0-3.275 2.375-5.55t5.8-2.275m0-4.8q1.625 0 3.175.4t3.325 1.3l-.4.925Q16.4 3.775 14.963 3.4t-2.938-.375q-1.65 0-3.05.4T6.05 4.7l-.45-.875Q7.25 2.9 8.8 2.463t3.225-.438m0 7.225q2.5 0 4.088 1.65t1.587 4.25h-1q0-2.2-1.3-3.55t-3.375-1.35q-1.925 0-3.275 1.288T7.4 14.65q0 1.925.675 3.363t2.425 3.262l-.7.7q-1.875-1.95-2.637-3.588T6.4 14.65q0-2.25 1.638-3.825t3.987-1.575m1.125 9.175q-.8-.75-1.225-1.838T11.5 14.15h1q0 1.125.35 2.05t1 1.525q.65.575 1.463.887t1.687.313q.425 0 .825-.088t.775-.237l.175.975q-.425.2-.875.275t-.9.075q-1.1 0-2.087-.387t-1.763-1.113'/%3E%3C/svg%3E");
+        }
+    </style>
 </head>
 <body>
-
-  <div id="info">Fetching location...</div>
-  <div id="map"></div>
-
-  <div id="wifi-details" style="position: absolute; top: 10px; right: 10px; background-color: rgba(255, 255, 255, 0.7); padding: 15px; max-width: 300px; z-index: 999;"></div>
-
-  <script>
-    // Initialize map and geolocation
-    const map = L.map('map').setView([0, 0], 13); // Default view will be updated later
-
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-    }).addTo(map);
-
-    function getLocationAndFetchData() {
-      if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(fetchNearbyWifi, showError);
-      } else {
-        alert("Geolocation is not supported by this browser.");
-      }
-    }
-
-    function fetchNearbyWifi(position) {
-      const lat = position.coords.latitude;
-      const lon = position.coords.longitude;
-
-      // Update map center and zoom based on user location
-      map.setView([lat, lon], 13);
-
-      // Show the user's location on the map
-      L.marker([lat, lon]).addTo(map)
-        .bindPopup("You are here")
-        .openPopup();
-
-      // Hypothetical data - Replace this with actual API call to fetch Wi-Fi hotspots
-      const wifiData = [
-        {
-          ssid: "Cafe_WiFi_123",
-          password: "CafePassword2025",
-          type: "Public",
-          lat: lat + 0.005, // Just for demonstration
-          lon: lon + 0.005
-        },
-        {
-          ssid: "Library_WiFi",
-          password: "LibraryAccess2025",
-          type: "Private",
-          lat: lat + 0.01, // Just for demonstration
-          lon: lon + 0.01
-        }
-      ];
-
-      displayWifiNetworks(wifiData);
-    }
-
-    function showError(error) {
-      switch (error.code) {
-        case error.PERMISSION_DENIED:
-          alert("User denied the request for Geolocation.");
-          break;
-        case error.POSITION_UNAVAILABLE:
-          alert("Location information is unavailable.");
-          break;
-        case error.TIMEOUT:
-          alert("The request to get user location timed out.");
-          break;
-        case error.UNKNOWN_ERROR:
-          alert("An unknown error occurred.");
-          break;
-      }
-    }
-
-    function displayWifiNetworks(data) {
-      const wifiList = document.getElementById('wifi-details');
-      wifiList.innerHTML = `<h3>Nearby Wi-Fi Networks:</h3>`;
-
-      data.forEach(wifi => {
-        // Add Wi-Fi info to the list
-        const wifiDiv = document.createElement('div');
-        wifiDiv.classList.add('wifi-info');
-        wifiDiv.innerHTML = `
-          <strong>SSID:</strong> ${wifi.ssid} <br>
-          <strong>Password:</strong> ${wifi.password} <br>
-          <strong>Type:</strong> ${wifi.type} <br>
-        `;
-        wifiList.appendChild(wifiDiv);
-
-        // Add marker on the map
-        L.marker([wifi.lat, wifi.lon]).addTo(map)
-          .bindPopup(`${wifi.ssid}<br>Password: ${wifi.password}<br>Type: ${wifi.type}`)
-          .openPopup();
-      });
-    }
-
-    // Call the function to get the user's location and fetch Wi-Fi data
-    getLocationAndFetchData();
-  </script>
-
+    <div class="circle">
+        <span class="material-symbols--fingerprint-sharp"></span>
+    </div>
 </body>
 </html>
