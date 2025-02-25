@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User System Details</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Signika:wght@300;400;600&display=swap');
+        body {
+            font-family: 'Signika', sans-serif;
+            background: linear-gradient(to bottom, #0a0a0a, #1d001d);
+            color: white;
+            padding: 20px;
+            text-align: left;
+        }
+        h2 { color: #ffcc00; }
+        pre { background: rgba(255, 255, 255, 0.1); padding: 10px; border-radius: 8px; }
+    </style>
+</head>
+<body>
+    <h1>🔍 User System Details</h1>
+    <h2>1. Browser & System Info</h2>
+    <pre id="browser-info">Loading...</pre>
+
+    <h2>2. Hardware Details</h2>
+    <pre id="hardware-info">Loading...</pre>
+
+    <h2>3. Network Information</h2>
+    <pre id="network-info">Loading...</pre>
+
+    <h2>4. Location (Permission Required)</h2>
+    <pre id="location-info">Waiting for permission...</pre>
+
+    <h2>5. Browser Storage & Cookies</h2>
+    <pre id="storage-info">Loading...</pre>
+
+    <h2>6. Mouse & Keyboard Tracking</h2>
+    <pre id="mouse-keyboard-info">Move or press a key...</pre>
+
+    <h2>7. Media & Camera (Permission Required)</h2>
+    <pre id="media-info">Waiting for permission...</pre>
+
+    <script>
+        document.getElementById("browser-info").textContent = `
+User Agent: ${navigator.userAgent}
+Platform: ${navigator.platform}
+Language: ${navigator.language}
+Screen Size: ${window.screen.width}x${window.screen.height}, Viewport: ${window.innerWidth}x${window.innerHeight}
+Plugins: ${navigator.plugins.length > 0 ? [...navigator.plugins].map(p => p.name).join(', ') : "Not Available"}
+        `;
+
+        document.getElementById("hardware-info").textContent = `
+CPU Cores: ${navigator.hardwareConcurrency || "Unknown"}
+RAM Estimate: ${navigator.deviceMemory || "Unknown"} GB
+Battery Status: Checking...
+Touch Support: ${('ontouchstart' in window) ? "Yes" : "No"}
+        `;
+
+        if (navigator.getBattery) {
+            navigator.getBattery().then(battery => {
+                document.getElementById("hardware-info").textContent += `
+Battery Level: ${Math.round(battery.level * 100)}%
+Charging: ${battery.charging ? "Yes" : "No"}
+                `;
+            });
+        }
+
+        function fetchIP() {
+            fetch("https://api64.ipify.org?format=json")
+                .then(res => res.json())
+                .then(data => {
+                    document.getElementById("network-info").textContent = `IP Address: ${data.ip}`;
+                })
+                .catch(() => {
+                    document.getElementById("network-info").textContent = "IP Address: Could not fetch.";
+                });
+        }
+        fetchIP();
+
+        if (navigator.connection) {
+            document.getElementById("network-info").textContent += `
+Network Speed: ${navigator.connection.downlink} Mbps
+Connection Type: ${navigator.connection.effectiveType}
+            `;
+        }
+
+        if ("geolocation" in navigator) {
+            navigator.geolocation.getCurrentPosition(
+                (position) => {
+                    document.getElementById("location-info").textContent = `
+Latitude: ${position.coords.latitude}
+Longitude: ${position.coords.longitude}
+Accuracy: ±${position.coords.accuracy} meters
+Altitude: ${position.coords.altitude || "Not Available"}
+Speed: ${position.coords.speed || "Not Moving"}
+Direction: ${position.coords.heading || "Unknown"}
+                    `;
+                },
+                () => {
+                    document.getElementById("location-info").textContent = "Permission Denied!";
+                }
+            );
+        } else {
+            document.getElementById("location-info").textContent = "Geolocation not supported.";
+        }
+
+        document.getElementById("storage-info").textContent = `
+Cookies Enabled: ${navigator.cookieEnabled ? "Yes" : "No"}
+LocalStorage: ${Object.keys(localStorage).length > 0 ? "Data Found" : "Empty"}
+SessionStorage: ${Object.keys(sessionStorage).length > 0 ? "Data Found" : "Empty"}
+        `;
+
+        document.onmousemove = (e) => {
+            document.getElementById("mouse-keyboard-info").textContent = `Mouse Position: X=${e.clientX}, Y=${e.clientY}`;
+        };
+
+        document.onkeydown = (e) => {
+            document.getElementById("mouse-keyboard-info").textContent = `Key Pressed: ${e.key}`;
+        };
+
+        async function checkMediaAccess() {
+            try {
+                await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+                document.getElementById("media-info").textContent = "Camera & Microphone: Permission Granted";
+            } catch (e) {
+                document.getElementById("media-info").textContent = "Camera & Microphone: Permission Denied";
+            }
+        }
+        checkMediaAccess();
+    </script>
+</body>
+</html>
