@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clipboard Viewer</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Signika:wght@400;600&display=swap');
+        body {
+            font-family: 'Signika', sans-serif;
+            text-align: center;
+            padding: 20px;
+            background-color: #1e1e2e;
+            color: white;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 18px;
+            font-family: 'Signika', sans-serif;
+            cursor: pointer;
+            border: none;
+            background: #6200ea;
+            color: white;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+        #output {
+            margin-top: 20px;
+            padding: 10px;
+            border: 2px solid white;
+            display: inline-block;
+            max-width: 90%;
+            word-wrap: break-word;
+        }
+        img {
+            max-width: 100%;
+            height: auto;
+            border: 2px solid white;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>📋 Clipboard Viewer</h1>
+    <button onclick="readClipboard()">📥 Fetch Clipboard</button>
+    <div id="output">Clipboard content will appear here...</div>
+
+    <script>
+        async function readClipboard() {
+            try {
+                const clipboardItems = await navigator.clipboard.read();
+                const outputDiv = document.getElementById('output');
+                outputDiv.innerHTML = ''; // Clear previous content
+                
+                for (const item of clipboardItems) {
+                    for (const type of item.types) {
+                        if (type.startsWith("image/")) {
+                            // If clipboard has an image
+                            const blob = await item.getType(type);
+                            const imgURL = URL.createObjectURL(blob);
+                            const img = document.createElement("img");
+                            img.src = imgURL;
+                            outputDiv.appendChild(img);
+                        } else if (type === "text/plain") {
+                            // If clipboard has text
+                            const textBlob = await item.getType(type);
+                            const text = await textBlob.text();
+                            const textElem = document.createElement("p");
+                            textElem.textContent = text;
+                            outputDiv.appendChild(textElem);
+                        }
+                    }
+                }
+            } catch (err) {
+                console.error("Error reading clipboard:", err);
+                alert("Clipboard access failed! Try again.");
+            }
+        }
+    </script>
+
+</body>
+</html>
