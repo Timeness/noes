@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Nearby Wi-Fi Networks (With Details)</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+    }
+    #map {
+      height: 100vh;
+      width: 100%;
+    }
+    #info {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      background-color: rgba(255, 255, 255, 0.7);
+      padding: 10px;
+      font-size: 16px;
+    }
+    .wifi-info {
+      margin: 10px 0;
+      padding: 10px;
+      background-color: #f0f0f0;
+      border-radius: 5px;
+    }
+  </style>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+</head>
+<body>
+
+  <div id="info">Fetching location...</div>
+  <div id="map"></div>
+
+  <div id="wifi-details" style="position: absolute; top: 10px; right: 10px; background-color: rgba(255, 255, 255, 0.7); padding: 15px; max-width: 300px; z-index: 999;"></div>
+
+  <script>
+    // Initialize map and geolocation
+    const map = L.map('map').setView([0, 0], 13); // Default view will be updated later
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+    }).addTo(map);
+
+    function getLocationAndFetchData() {
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(fetchNearbyWifi, showError);
+      } else {
+        alert("Geolocation is not supported by this browser.");
+      }
+    }
+
+    function fetchNearbyWifi(position) {
+      const lat = position.coords.latitude;
+      const lon = position.coords.longitude;
+
+      // Update map center and zoom based on user location
+      map.setView([lat, lon], 13);
+
+      // Show the user's location on the map
+      L.marker([lat, lon]).addTo(map)
+        .bindPopup("You are here")
+        .openPopup();
+
+      // Hypothetical data - Replace this with actual API call to fetch Wi-Fi hotspots
+      const wifiData = [
+        {
+          ssid: "Cafe_WiFi_123",
+          password: "CafePassword2025",
+          type: "Public",
+          lat: lat + 0.005, // Just for demonstration
+          lon: lon + 0.005
+        },
+        {
+          ssid: "Library_WiFi",
+          password: "LibraryAccess2025",
+          type: "Private",
+          lat: lat + 0.01, // Just for demonstration
+          lon: lon + 0.01
+        }
+      ];
+
+      displayWifiNetworks(wifiData);
+    }
+
+    function showError(error) {
+      switch (error.code) {
+        case error.PERMISSION_DENIED:
+          alert("User denied the request for Geolocation.");
+          break;
+        case error.POSITION_UNAVAILABLE:
+          alert("Location information is unavailable.");
+          break;
+        case error.TIMEOUT:
+          alert("The request to get user location timed out.");
+          break;
+        case error.UNKNOWN_ERROR:
+          alert("An unknown error occurred.");
+          break;
+      }
+    }
+
+    function displayWifiNetworks(data) {
+      const wifiList = document.getElementById('wifi-details');
+      wifiList.innerHTML = `<h3>Nearby Wi-Fi Networks:</h3>`;
+
+      data.forEach(wifi => {
+        // Add Wi-Fi info to the list
+        const wifiDiv = document.createElement('div');
+        wifiDiv.classList.add('wifi-info');
+        wifiDiv.innerHTML = `
+          <strong>SSID:</strong> ${wifi.ssid} <br>
+          <strong>Password:</strong> ${wifi.password} <br>
+          <strong>Type:</strong> ${wifi.type} <br>
+        `;
+        wifiList.appendChild(wifiDiv);
+
+        // Add marker on the map
+        L.marker([wifi.lat, wifi.lon]).addTo(map)
+          .bindPopup(`${wifi.ssid}<br>Password: ${wifi.password}<br>Type: ${wifi.type}`)
+          .openPopup();
+      });
+    }
+
+    // Call the function to get the user's location and fetch Wi-Fi data
+    getLocationAndFetchData();
+  </script>
+
+</body>
+</html>
