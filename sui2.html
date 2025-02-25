@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Connected Devices</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Signika:wght@300;400;600&display=swap');
+        body {
+            font-family: 'Signika', sans-serif;
+            background: linear-gradient(to bottom, #0a0a0a, #1d001d);
+            color: white;
+            padding: 20px;
+            text-align: left;
+        }
+        h2 { color: #ffcc00; }
+        pre { background: rgba(255, 255, 255, 0.1); padding: 10px; border-radius: 8px; }
+        button {
+            background: #ffcc00;
+            border: none;
+            padding: 10px 15px;
+            cursor: pointer;
+            font-size: 16px;
+            border-radius: 5px;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h1>🔍 Connected Devices</h1>
+
+    <h2>🎤 Media Devices (Camera, Mic, Speakers)</h2>
+    <pre id="media-devices">Click "Detect Devices"</pre>
+    <button onclick="getMediaDevices()">Detect Devices</button>
+
+    <h2>📡 Bluetooth Devices</h2>
+    <pre id="bluetooth-devices">Click "Scan Bluetooth"</pre>
+    <button onclick="getBluetoothDevices()">Scan Bluetooth</button>
+
+    <h2>🔌 USB Devices</h2>
+    <pre id="usb-devices">Click "Check USB"</pre>
+    <button onclick="getUSBDevices()">Check USB</button>
+
+    <h2>🖨️ HID Devices (Keyboard, Controllers)</h2>
+    <pre id="hid-devices">Click "Detect HID"</pre>
+    <button onclick="getHIDDevices()">Detect HID</button>
+
+    <script>
+        async function getMediaDevices() {
+            try {
+                const devices = await navigator.mediaDevices.enumerateDevices();
+                document.getElementById("media-devices").textContent = devices.map(d => `${d.kind}: ${d.label || "Unknown Device"}`).join("\n") || "No media devices found.";
+            } catch (error) {
+                document.getElementById("media-devices").textContent = "Permission Denied or No Devices Found.";
+            }
+        }
+
+        async function getBluetoothDevices() {
+            try {
+                const device = await navigator.bluetooth.requestDevice({ acceptAllDevices: true });
+                document.getElementById("bluetooth-devices").textContent = `Connected Bluetooth Device: ${device.name || "Unknown"}`;
+            } catch (error) {
+                document.getElementById("bluetooth-devices").textContent = "No Bluetooth device found or permission denied.";
+            }
+        }
+
+        async function getUSBDevices() {
+            try {
+                const devices = await navigator.usb.getDevices();
+                document.getElementById("usb-devices").textContent = devices.length > 0 ? devices.map(d => d.productName).join(", ") : "No USB devices found.";
+            } catch (error) {
+                document.getElementById("usb-devices").textContent = "No USB devices found or permission denied.";
+            }
+        }
+
+        async function getHIDDevices() {
+            try {
+                const devices = await navigator.hid.getDevices();
+                document.getElementById("hid-devices").textContent = devices.length > 0 ? devices.map(d => d.productName).join(", ") : "No HID devices found.";
+            } catch (error) {
+                document.getElementById("hid-devices").textContent = "No HID devices found or permission denied.";
+            }
+        }
+    </script>
+</body>
+</html>
