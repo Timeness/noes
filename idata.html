@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Fake Valid IP Generator</title>
+    <title>Valid Public IP Fetcher</title>
     
-    <!-- Google Font: Signika -->
+    <!-- Google Font: Smooch Sans -->
     <link href="https://fonts.googleapis.com/css2?family=Smooch+Sans:wght@400;600&display=swap" rel="stylesheet">
     
     <style>
@@ -52,25 +52,27 @@
 </head>
 <body>
 
-    <h2>Fake Valid IP Generator</h2>
-    <button onclick="generateIP()">GenX</button>
+    <h2>Valid Public IP Fetcher</h2>
+    <button onclick="generateValidIP()">GenX</button>
     <div id="output"></div>
 
     <script>
         let count = 1;
 
-        async function generateIP() {
+        async function generateValidIP() {
             try {
-                // Fake Public IP Generator
-                let ipResponse = await fetch("https://api64.ipify.org?format=json");
-                let ipData = await ipResponse.json();
-                let publicIP = ipData.ip;
+                let proxyResponse = await fetch("https://proxylist.geonode.com/api/proxy-list?limit=1&page=1&sort_by=lastChecked&order_by=desc");
+                let proxyData = await proxyResponse.json();
+                
+                if (!proxyData.data || proxyData.data.length === 0) {
+                    throw new Error("Koi valid proxy IP nahi mili.");
+                }
 
-                // Fetch Details from ip-api
+                let publicIP = proxyData.data[0].ip;
+
                 let detailsResponse = await fetch(`http://ip-api.com/json/${publicIP}`);
                 let details = await detailsResponse.json();
 
-                // Format Output
                 let outputDiv = document.getElementById("output");
                 outputDiv.innerHTML += `<p><strong>${count}.</strong> ${publicIP} | ${JSON.stringify(details)}</p>`;
                 count++;
