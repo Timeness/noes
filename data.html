@@ -2,25 +2,19 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Fake IP Generator</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fake Valid IP Generator</title>
     
-    <!-- Google Font -->
+    <!-- Google Font: Signika -->
     <link href="https://fonts.googleapis.com/css2?family=Smooch+Sans:wght@400;600&display=swap" rel="stylesheet">
     
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
             font-family: 'Smooch Sans', sans-serif;
             text-align: center;
-            background-color: #2D1B4B; /* Dark Purple */
+            margin-top: 50px;
+            background: linear-gradient(to bottom, #2c003e, #000000);
             color: white;
-            overflow: hidden; /* No scrolling */
-            height: 100vh;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
         }
         button {
             padding: 12px 24px;
@@ -28,57 +22,61 @@
             font-weight: 600;
             cursor: pointer;
             border: none;
-            background-color: #6A0DAD; /* Darker Purple */
+            background-color: #6a0dad;
             color: white;
-            border-radius: 8px;
+            border-radius: 5px;
             transition: 0.3s;
         }
         button:hover {
-            background-color: #9A0DAD;
+            background-color: #520b8d;
         }
         #output {
             margin-top: 20px;
-            font-size: 20px;
-            max-height: 300px;
-            overflow-y: auto; /* Scroll inside output div */
-            width: 80%;
             text-align: left;
-            padding: 10px;
-            border: 1px solid #fff;
+            display: inline-block;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px;
             border-radius: 8px;
+            width: 80%;
+            max-width: 600px;
+            overflow-wrap: break-word;
+        }
+        p {
+            font-size: 16px;
+            margin: 5px 0;
+            padding: 8px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 5px;
         }
     </style>
 </head>
 <body>
 
-    <h2>Fake IP & Country Generator</h2>
+    <h2>Fake Valid IP Generator</h2>
     <button onclick="generateIP()">GenX</button>
     <div id="output"></div>
 
     <script>
         let count = 1;
 
-        function generateFakeIP() {
-            return `${Math.floor(Math.random() * 256)}.${Math.floor(Math.random() * 256)}.${Math.floor(Math.random() * 256)}.${Math.floor(Math.random() * 256)}`;
-        }
-
-        async function getCountry(ip) {
-            try {
-                let response = await fetch(`http://ip-api.com/json/${ip}?fields=country`);
-                let data = await response.json();
-                return data.country || "Pata nahi chala";
-            } catch {
-                return "Pata nahi chala";
-            }
-        }
-
         async function generateIP() {
-            let ip = generateFakeIP();
-            let country = await getCountry(ip);
-            let outputDiv = document.getElementById("output");
-            outputDiv.innerHTML += `<p>${count}. ${ip} | ${country}</p>`;
-            count++;
-            outputDiv.scrollTop = outputDiv.scrollHeight; // Auto-scroll to latest entry
+            try {
+                // Fake Public IP Generator
+                let ipResponse = await fetch("https://api64.ipify.org?format=json");
+                let ipData = await ipResponse.json();
+                let publicIP = ipData.ip;
+
+                // Fetch Details from ip-api
+                let detailsResponse = await fetch(`http://ip-api.com/json/${publicIP}`);
+                let details = await detailsResponse.json();
+
+                // Format Output
+                let outputDiv = document.getElementById("output");
+                outputDiv.innerHTML += `<p><strong>${count}.</strong> ${publicIP} | ${JSON.stringify(details)}</p>`;
+                count++;
+            } catch (error) {
+                console.error("Error fetching IP:", error);
+            }
         }
     </script>
 
