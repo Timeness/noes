@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dropzone.js Full Feature Example</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/dropzone/5.7.0/dropzone.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Signika&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Signika', sans-serif;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 50px;
+        }
+
+        #my-dropzone {
+            border: 2px dashed #007BFF;
+            border-radius: 5px;
+            padding: 20px;
+            background-color: #f9f9f9;
+        }
+
+        #my-dropzone .dz-message {
+            color: #007BFF;
+            font-weight: bold;
+        }
+
+        .dz-preview {
+            display: flex;
+            align-items: center;
+        }
+
+        .dz-preview .dz-image img {
+            width: 100px;
+            height: 100px;
+            object-fit: cover;
+        }
+
+        .dz-preview .dz-details {
+            margin-left: 15px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h2 class="text-center mb-4">Dropzone.js File Upload</h2>
+
+        <form action="/file-upload" class="dropzone" id="my-dropzone">
+            <div class="dz-message">
+                <h3>Drag & Drop files here or click to select</h3>
+                <p>Only image files are allowed (JPEG, PNG, GIF)</p>
+            </div>
+        </form>
+
+        <div id="file-details" class="mt-4"></div>
+
+        <button id="uploadButton" class="bg-blue-500 text-white px-4 py-2 rounded mt-4">Start Upload</button>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/dropzone/5.7.0/dropzone.min.js"></script>
+    <script>
+        // Configure Dropzone
+        Dropzone.options.myDropzone = {
+            url: "/file-upload", // Replace with your server upload URL
+            maxFilesize: 5, // Max file size in MB
+            acceptedFiles: "image/*", // Accept only image files
+            addRemoveLinks: true, // Show remove link on uploaded files
+            dictDefaultMessage: "Drag & drop files here or click to select",
+            dictRemoveFile: "Remove file",
+            dictFileTooBig: "File is too big. Max size is 5MB.",
+            dictInvalidFileType: "Invalid file type. Only images are allowed.",
+            init: function() {
+                this.on("addedfile", function(file) {
+                    // Custom preview content
+                    var fileDetails = document.getElementById('file-details');
+                    var fileInfo = `<p><strong>File Name:</strong> ${file.name}</p><p><strong>File Size:</strong> ${file.size} bytes</p>`;
+                    fileDetails.innerHTML = fileInfo;
+                });
+                
+                this.on("success", function(file, response) {
+                    console.log("Successfully uploaded: ", file);
+                    alert("File uploaded successfully!");
+                });
+                
+                this.on("error", function(file, errorMessage) {
+                    console.log("Error: ", errorMessage);
+                    alert("Error uploading file: " + errorMessage);
+                });
+            }
+        };
+
+        // Start upload when the button is clicked
+        document.getElementById('uploadButton').addEventListener('click', function() {
+            var myDropzone = Dropzone.forElement("#my-dropzone");
+            myDropzone.processQueue(); // Start uploading all files
+        });
+    </script>
+
+</body>
+</html>
