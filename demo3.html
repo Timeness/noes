@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CDN Demo Page with 10 Additional Libraries</title>
+
+    <!-- Google Font: Signika -->
+    <link href="https://fonts.googleapis.com/css2?family=Signika&display=swap" rel="stylesheet">
+
+    <!-- Tailwind CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@3.0.23/dist/tailwind.min.css" rel="stylesheet">
+
+    <!-- jQuery (For DOM manipulation) -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
+    <!-- Alpine.js (For reactivity) -->
+    <script src="https://cdn.jsdelivr.net/npm/alpinejs@2.8.2/dist/alpine.min.js" defer></script>
+
+    <!-- ScrollReveal (For scroll animations) -->
+    <script src="https://cdn.jsdelivr.net/npm/scrollreveal@4.0.7/dist/scrollreveal.min.js"></script>
+
+    <!-- Feather Icons (For icons) -->
+    <script src="https://cdn.jsdelivr.net/npm/feather-icons@4.28.0/dist/feather.min.js"></script>
+
+    <!-- Tippy.js (For tooltips) -->
+    <script src="https://cdn.jsdelivr.net/npm/tippy.js@6.3.1/dist/tippy.umd.min.js"></script>
+
+    <!-- Pusher.js (For real-time notifications) -->
+    <script src="https://js.pusher.com/7.0/pusher.min.js"></script>
+
+    <!-- jQuery UI (For UI components like date picker) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
+
+    <!-- Select2 (For enhanced select box) -->
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/css/select2.min.css" rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/js/select2.min.js"></script>
+
+    <!-- Flatpickr (For date picking) -->
+    <link href="https://cdn.jsdelivr.net/npm/flatpickr@4.6.9/dist/flatpickr.min.css" rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr@4.6.9/dist/flatpickr.min.js"></script>
+
+    <!-- Toastr (For notifications) -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/css/toastr.min.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/js/toastr.min.js"></script>
+
+    <!-- Signika Font Style -->
+    <style>
+        body {
+            font-family: 'Signika', sans-serif;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container mt-5">
+        <h1 class="text-center text-3xl mb-4">CDN Demo Page with 10 Additional Libraries</h1>
+
+        <!-- Alpine.js Example -->
+        <div x-data="{ open: false }">
+            <button @click="open = !open" class="bg-blue-500 text-white py-2 px-4 rounded">Toggle Content</button>
+            <div x-show="open" class="mt-4 bg-gray-200 p-4 rounded">This content is toggled using Alpine.js!</div>
+        </div>
+
+        <!-- Feather Icons Example -->
+        <div class="mt-5">
+            <i data-feather="bell" class="text-4xl"></i>
+        </div>
+
+        <!-- ScrollReveal Example -->
+        <div class="mt-5" id="scrollRevealElement">
+            <h2>ScrollReveal Example</h2>
+            <p>This content will fade in when scrolled into view!</p>
+        </div>
+
+        <!-- jQuery UI Datepicker -->
+        <div class="mt-5">
+            <label for="datepicker">Pick a Date:</label>
+            <input type="text" id="datepicker" class="form-control" />
+        </div>
+
+        <!-- Select2 Example -->
+        <div class="mt-5">
+            <label for="select2">Choose an option:</label>
+            <select id="select2" class="form-control">
+                <option value="option1">Option 1</option>
+                <option value="option2">Option 2</option>
+                <option value="option3">Option 3</option>
+            </select>
+        </div>
+
+        <!-- Flatpickr Example -->
+        <div class="mt-5">
+            <label for="flatpickr">Pick a Date:</label>
+            <input type="text" id="flatpickr" class="form-control" />
+        </div>
+
+        <!-- Toastr Example -->
+        <button id="toastrBtn" class="bg-green-500 text-white py-2 px-4 rounded mt-5">Show Toastr Notification</button>
+
+    </div>
+
+    <!-- jQuery Example -->
+    <script>
+        // Datepicker using jQuery UI
+        $(document).ready(function() {
+            $("#datepicker").datepicker();
+        });
+    </script>
+
+    <!-- Feather Icons Initialization -->
+    <script>
+        feather.replace(); // Initialize Feather icons
+    </script>
+
+    <!-- ScrollReveal Initialization -->
+    <script>
+        ScrollReveal().reveal('#scrollRevealElement', {
+            duration: 1000,
+            opacity: 0,
+            distance: '50px',
+            easing: 'ease-out',
+        });
+    </script>
+
+    <!-- Select2 Initialization -->
+    <script>
+        $(document).ready(function() {
+            $('#select2').select2();
+        });
+    </script>
+
+    <!-- Flatpickr Initialization -->
+    <script>
+        flatpickr("#flatpickr", {
+            enableTime: true,
+            dateFormat: "Y-m-d H:i",
+        });
+    </script>
+
+    <!-- Toastr Initialization -->
+    <script>
+        document.getElementById('toastrBtn').addEventListener('click', function() {
+            toastr.success('This is a Toastr notification!', 'Success');
+        });
+    </script>
+
+</body>
+</html>
