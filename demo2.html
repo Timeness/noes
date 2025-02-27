@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CDN Demo Page with 10 Additional Libraries</title>
+
+    <!-- Google Font: Signika -->
+    <link href="https://fonts.googleapis.com/css2?family=Signika&display=swap" rel="stylesheet">
+
+    <!-- Tailwind CSS (Utility-first CSS Framework) -->
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@3.0.23/dist/tailwind.min.css" rel="stylesheet">
+
+    <!-- jQuery (For DOM manipulation) -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
+    <!-- Lodash (Utility functions library) -->
+    <script src="https://cdn.jsdelivr.net/npm/lodash@4.17.21/lodash.min.js"></script>
+
+    <!-- Popper.js (Used for tooltips, popovers) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/2.11.6/umd/popper.min.js"></script>
+
+    <!-- Bootstrap CSS (UI components and styling) -->
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Bootstrap JS (Interactive components like modals, tooltips) -->
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
+
+    <!-- FullCalendar (Interactive calendar UI) -->
+    <link href="https://cdn.jsdelivr.net/npm/fullcalendar@3.2.0/dist/fullcalendar.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@3.2.0/dist/fullcalendar.min.js"></script>
+
+    <!-- Chart.js (For Data Visualization) -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <!-- SweetAlert2 (For Customizable Alerts) -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <!-- Normalize.css (For resetting default browser styles) -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/normalize.css/normalize.css">
+
+    <!-- AOS (Animate On Scroll) -->
+    <link href="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.js"></script>
+
+    <!-- GSAP (GreenSock Animation Platform) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.9.1/gsap.min.js"></script>
+
+    <!-- Moment.js (For date manipulation) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
+
+    <!-- Materialize CSS (Material design components) -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+
+    <!-- Lottie.js (For JSON-based animations) -->
+    <script src="https://cdn.jsdelivr.net/npm/lottie-web@5.7.10/build/player/lottie.min.js"></script>
+
+    <!-- Slick.js (For Carousel/Sliders) -->
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick.css"/>
+    <script src="https://cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick.min.js"></script>
+
+    <!-- Signika Font Style -->
+    <style>
+        body {
+            font-family: 'Signika', sans-serif;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container mt-5">
+        <h1 class="text-center text-3xl mb-4">CDN Demo Page with 10 Additional Libraries</h1>
+
+        <!-- Lodash Example: Debounce Search -->
+        <div>
+            <label for="searchInput">Search:</label>
+            <input type="text" id="searchInput" class="form-control" placeholder="Type something..." />
+            <div id="output" class="mt-3"></div>
+        </div>
+
+        <!-- Bootstrap Modal Example -->
+        <button class="btn btn-primary mt-4" data-toggle="modal" data-target="#exampleModal">Open Modal</button>
+
+        <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="exampleModalLabel">Modal Example</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        This is a Bootstrap modal example.
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        <button type="button" class="btn btn-primary">Save changes</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- FullCalendar Example -->
+        <div id="calendar" class="mt-5"></div>
+
+        <!-- Chart.js Example (Bar Chart) -->
+        <canvas id="myChart" width="400" height="200" class="mt-5"></canvas>
+
+        <!-- SweetAlert2 Example -->
+        <button id="alertBtn" class="btn btn-danger mt-4">Click for SweetAlert</button>
+
+        <!-- Materialize Button Example -->
+        <a class="waves-effect waves-light btn mt-4">Materialize Button</a>
+
+        <!-- AOS Scroll Animation Example -->
+        <div data-aos="fade-up" class="mt-5">
+            This content will fade in when you scroll down.
+        </div>
+
+        <!-- GSAP Animation Example -->
+        <div id="gsapExample" class="mt-5 p-5 bg-gray-200">
+            <h2>This is a GSAP animated text!</h2>
+        </div>
+
+        <!-- Slick.js Carousel Example -->
+        <div class="slick-carousel mt-5">
+            <div><img src="https://via.placeholder.com/300x150" alt="Image 1" /></div>
+            <div><img src="https://via.placeholder.com/300x150" alt="Image 2" /></div>
+            <div><img src="https://via.placeholder.com/300x150" alt="Image 3" /></div>
+        </div>
+
+        <!-- Lottie.js Animation Example -->
+        <div id="lottieAnimation" class="mt-5" style="width: 300px; height: 300px;"></div>
+
+    </div>
+
+    <!-- jQuery Demo (Debounce Search) -->
+    <script>
+        $('#searchInput').on('input', _.debounce(function() {
+            $('#output').text('Searching for: ' + this.value);
+        }, 500));
+    </script>
+
+    <!-- FullCalendar Initialization -->
+    <script>
+        $(document).ready(function() {
+            $('#calendar').fullCalendar({
+                header: {
+                    left: 'prev,next today',
+                    center: 'title',
+                    right: 'month,agendaWeek,agendaDay'
+                },
+                events: [
+                    {
+                        title: 'Event 1',
+                        start: '2025-02-28',
+                        color: '#ff9f89'
+                    },
+                    {
+                        title: 'Event 2',
+                        start: '2025-03-03',
+                        end: '2025-03-05',
+                        color: '#ff6347'
+                    }
+                ]
+            });
+        });
+    </script>
+
+    <!-- Chart.js Initialization (Bar Chart) -->
+    <script>
+        var ctx = document.getElementById('myChart').getContext('2d');
+        var myChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: ['Red', 'Blue', 'Yellow', 'Green'],
+                datasets: [{
+                    label: '# of Votes',
+                    data: [12, 19, 3, 5],
+                    backgroundColor: ['rgba(255, 99, 132, 0.2)', 'rgba(54, 162, 235, 0.2)', 'rgba(255, 206, 86, 0.2)', 'rgba(75, 192, 192, 0.2)'],
+                    borderColor: ['rgba(255, 99, 132, 1)', 'rgba(54, 162, 235, 1)', 'rgba(255, 206, 86, 1)', 'rgba(75, 192, 192, 1)'],
+                    borderWidth: 1
+                }]
+            }
+        });
+    </script>
+
+    <!-- SweetAlert2 Initialization -->
+    <script>
+        document.getElementById('alertBtn').onclick = function() {
+            Swal.fire({
+                title: 'Success!',
+                text: 'This is a SweetAlert2 notification!',
+                icon: 'success',
+                confirmButtonText: 'Cool'
+            });
+        };
+    </script>
+
+    <!-- GSAP Animation -->
+    <script>
+        gsap.from("#gsapExample", { opacity: 0, duration: 2, y: 50 });
+    </script>
+
+    <!-- Slick.js Initialization -->
+    <script>
+        $('.slick-carousel').slick({
+            autoplay: true,
+            autoplaySpeed: 2000,
+            arrows: false
+        });
+    </script>
+
+    <!-- Lottie.js Initialization -->
+    <script>
+        var animation = lottie.loadAnimation({
+            container: document.getElementById('lottieAnimation'),
+            renderer: 'svg',
+            loop: true,
+            autoplay: true,
+            path: 'https://assets6.lottiefiles.com/packages/lf20_zj5knq.json' // Link to a Lottie animation JSON
+        });
+    </script>
+
+</body>
+              </html>
