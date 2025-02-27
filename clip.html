@@ -3,98 +3,113 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Clipboard Viewer</title>
+    <title>Fingerprint Auth with ReMatch</title>
+    <script src="https://unpkg.com/react@17/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@17/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Signika:wght@300;400;600&display=swap" rel="stylesheet">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Signika:wght@400;600&display=swap');
         body {
             font-family: 'Signika', sans-serif;
-            text-align: center;
-            padding: 20px;
-            background-color: #1e1e2e;
-            color: white;
-        }
-        button {
-            padding: 10px 20px;
-            font-size: 18px;
-            font-family: 'Signika', sans-serif;
-            cursor: pointer;
-            border: none;
-            background: #6200ea;
-            color: white;
-            border-radius: 5px;
-            margin-bottom: 20px;
-        }
-        #output {
-            margin-top: 20px;
-            padding: 10px;
-            border: 2px solid white;
-            display: inline-block;
-            max-width: 90%;
-            word-wrap: break-word;
-        }
-        img {
-            max-width: 100%;
-            height: auto;
-            border: 2px solid white;
-            margin-top: 10px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
         }
     </style>
 </head>
 <body>
+    <div id="root"></div>
 
-    <h1>📋 Clipboard Viewer</h1>
-    <button onclick="requestClipboardPermission()">📥 Fetch Clipboard</button>
-    <div id="output">Clipboard content will appear here...</div>
+    <script type="text/babel">
+        function FingerprintAuth() {
+            const [authData, setAuthData] = React.useState(null);
+            const [error, setError] = React.useState(null);
+            const [storedRawId, setStoredRawId] = React.useState(null);
+            const [rematchResult, setRematchResult] = React.useState(null);
 
-    <script>
-        async function requestClipboardPermission() {
-            try {
-                // Request clipboard permission (this may not be needed in modern browsers, but it's a good practice)
-                const permission = await navigator.permissions.query({ name: "clipboard-read" });
-                
-                if (permission.state === "granted") {
-                    // If permission is granted, fetch the clipboard content
-                    readClipboard();
-                } else {
-                    alert("Clipboard access is denied. Please grant permission.");
-                }
-            } catch (err) {
-                console.error("Error requesting clipboard permission:", err);
-                alert("Clipboard access failed! Try again.");
-            }
-        }
+            async function authenticate(isRematch = false) {
+                try {
+                    setError(null);
+                    setRematchResult(null);
 
-        async function readClipboard() {
-            try {
-                const clipboardItems = await navigator.clipboard.read();
-                const outputDiv = document.getElementById('output');
-                outputDiv.innerHTML = ''; // Clear previous content
-                
-                for (const item of clipboardItems) {
-                    for (const type of item.types) {
-                        if (type.startsWith("image/")) {
-                            // If clipboard has an image
-                            const blob = await item.getType(type);
-                            const imgURL = URL.createObjectURL(blob);
-                            const img = document.createElement("img");
-                            img.src = imgURL;
-                            outputDiv.appendChild(img);
-                        } else if (type === "text/plain") {
-                            // If clipboard has text
-                            const textBlob = await item.getType(type);
-                            const text = await textBlob.text();
-                            const textElem = document.createElement("p");
-                            textElem.textContent = text;
-                            outputDiv.appendChild(textElem);
+                    const publicKey = {
+                        challenge: new Uint8Array(32),
+                        rp: { name: "Secure App" },
+                        user: {
+                            id: new Uint8Array(16),
+                            name: "user@example.com",
+                            displayName: "User Example"
+                        },
+                        pubKeyCredParams: [{ type: "public-key", alg: -7 }],
+                        authenticatorSelection: {
+                            authenticatorAttachment: "platform",
+                            requireResidentKey: false,
+                            userVerification: "required"
+                        },
+                        timeout: 60000
+                    };
+
+                    const credential = await navigator.credentials.create({ publicKey });
+
+                    if (credential) {
+                        const rawId = btoa(String.fromCharCode(...new Uint8Array(credential.rawId)));
+
+                        if (isRematch) {
+                            setRematchResult(rawId === storedRawId ? "✅ ReMatch Successful" : "❌ ReMatch Failed");
+                        } else {
+                            setStoredRawId(rawId);
+                            setAuthData({
+                                id: credential.id,
+                                type: credential.type,
+                                rawId: rawId,
+                                clientDataJSON: JSON.parse(new TextDecoder().decode(credential.response.clientDataJSON)),
+                                authenticatorData: btoa(String.fromCharCode(...new Uint8Array(credential.response.authenticatorData))),
+                            });
                         }
                     }
+                } catch (err) {
+                    setError(err.message);
                 }
-            } catch (err) {
-                console.error("Error reading clipboard:", err);
-                alert("Clipboard access failed! Try again.");
             }
-        }
-    </script>
 
+            return (
+                <div className="text-center p-6 bg-white rounded-lg shadow-lg max-w-md mx-auto">
+                    <h2 className="text-2xl font-semibold text-gray-800">Fingerprint Authentication</h2>
+                    <button onClick={() => authenticate()} className="mt-4 px-6 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition">
+                        Authenticate with Fingerprint
+                    </button>
+
+                    {authData && (
+                        <div className="mt-4 p-4 border rounded-lg bg-gray-100">
+                            <h3 className="text-lg font-medium">Authentication Successful 🎉</h3>
+                            <p><strong>ID:</strong> {authData.id}</p>
+                            <p><strong>Type:</strong> {authData.type}</p>
+                            <p><strong>Raw ID:</strong> {authData.rawId}</p>
+                            <p><strong>Challenge:</strong> {authData.clientDataJSON.challenge}</p>
+                            <p><strong>Origin:</strong> {authData.clientDataJSON.origin}</p>
+                            <p><strong>Authenticator Data:</strong> {authData.authenticatorData}</p>
+
+                            <button onClick={() => authenticate(true)} className="mt-4 px-6 py-2 bg-green-600 text-white rounded hover:bg-green-700 transition">
+                                ReMatch Fingerprint 🔄
+                            </button>
+                        </div>
+                    )}
+
+                    {rematchResult && (
+                        <p className={`mt-4 text-lg font-semibold ${rematchResult.includes("✅") ? "text-green-600" : "text-red-600"}`}>
+                            {rematchResult}
+                        </p>
+                    )}
+
+                    {error && <p className="mt-4 text-red-600">{error}</p>}
+                </div>
+            );
+        }
+
+        ReactDOM.render(<FingerprintAuth />, document.getElementById("root"));
+    </script>
 </body>
 </html>
