@@ -1,88 +1,111 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>IP Details</title>
-    <link href="https://fonts.googleapis.com/css2?family=Smooch+Sans:wght@400;700&display=swap" rel="stylesheet">
-    <style>
-        body {
-            font-family: 'Smooch Sans', sans-serif;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Real Heart Rate Checker</title>
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- React and React DOM CDN -->
+  <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+
+  <!-- Babel CDN for JSX support -->
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
 </head>
-<body>
-    <h2>IP Details</h2>
-    <p><strong>Public IP Address:</strong> <span id="ip"></span></p>
-    <p><strong>Local IP Address:</strong> <span id="local-ip"></span></p>
-    <p><strong>Ping:</strong> <span id="ping"></span> ms</p>
-    <p><strong>Speed:</strong> <span id="speed"></span></p>
-    <p><strong>City:</strong> <span id="city"></span></p>
-    <p><strong>Region:</strong> <span id="region"></span></p>
-    <p><strong>Country:</strong> <span id="country"></span></p>
-    <p><strong>ISP:</strong> <span id="isp"></span></p>
-    <p><strong>Host:</strong> <span id="host"></span></p>
-    <p><strong>Timezone:</strong> <span id="timezone"></span></p>
-    <p><strong>Coordinates:</strong> <span id="lat"></span>, <span id="lon"></span></p>
+<body class="bg-gray-100">
 
-    <script>
-        async function getIPDetails() {
-            try {
-                let response = await fetch("http://ip-api.com/json/");
-                let data = await response.json();
-                document.getElementById("ip").innerText = data.query;
-                document.getElementById("city").innerText = data.city;
-                document.getElementById("region").innerText = data.regionName;
-                document.getElementById("country").innerText = data.country;
-                document.getElementById("isp").innerText = data.isp;
-                document.getElementById("host").innerText = data.as;
-                document.getElementById("timezone").innerText = data.timezone;
-                document.getElementById("lat").innerText = data.lat;
-                document.getElementById("lon").innerText = data.lon;
-            } catch (error) {
-                console.error("Error fetching IP details:", error);
-            }
+  <div id="root"></div>
+
+  <script type="text/babel">
+
+    const { useState, useEffect } = React;
+
+    function App() {
+      const [heartRate, setHeartRate] = useState(null);
+      const [message, setMessage] = useState('');
+
+      // Function to handle the heart rate monitor connection
+      const connectHeartRateMonitor = async () => {
+        try {
+          // Request the Bluetooth device
+          const device = await navigator.bluetooth.requestDevice({
+            filters: [{ services: ['heart_rate'] }] // Searching for heart rate service
+          });
+
+          // Connect to the device
+          const server = await device.gatt.connect();
+          const service = await server.getPrimaryService('heart_rate');
+
+          // Get the Heart Rate Measurement characteristic
+          const characteristic = await service.getCharacteristic('heart_rate_measurement');
+
+          // Start receiving data from the heart rate sensor
+          characteristic.addEventListener('characteristicvaluechanged', handleHeartRateMeasurement);
+
+          // Start notifications from the heart rate characteristic
+          await characteristic.startNotifications();
+        } catch (error) {
+          console.log('Error connecting to heart rate sensor:', error);
         }
+      };
 
-        function testPing() {
-            let start = performance.now();
-            fetch("https://www.google.com").then(() => {
-                let end = performance.now();
-                document.getElementById("ping").innerText = Math.round(end - start);
-            });
+      // Function to handle the heart rate data
+      const handleHeartRateMeasurement = (event) => {
+        const value = event.target.value;
+        const heartRateValue = value.getUint8(1); // Heart rate data is stored in the second byte
+        setHeartRate(heartRateValue);
+        checkHeartRate(heartRateValue);
+      };
+
+      // Function to check the heart rate and update the message
+      const checkHeartRate = (rate) => {
+        if (rate < 60) {
+          setMessage('Your heart rate is too low.');
+        } else if (rate >= 60 && rate <= 100) {
+          setMessage('Your heart rate is normal.');
+        } else if (rate > 100) {
+          setMessage('Your heart rate is too high.');
         }
+      };
 
-        function testSpeed() {
-            let startTime = new Date().getTime();
-            let image = new Image();
-            image.src = "https://upload.wikimedia.org/wikipedia/commons/3/3a/Cat03.jpg?t=" + startTime;
-            image.onload = function () {
-                let endTime = new Date().getTime();
-                let speed = (500 / ((endTime - startTime) / 1000)).toFixed(2);
-                document.getElementById("speed").innerText = speed + " KB/s";
-            };
-        }
+      // Button click handler to connect to the heart rate monitor
+      const handleConnectClick = () => {
+        connectHeartRateMonitor();
+      };
 
-        function getLocalIP() {
-            let pc = new RTCPeerConnection();
-            pc.createDataChannel("");
-            pc.createOffer().then(offer => pc.setLocalDescription(offer));
-            pc.onicecandidate = event => {
-                if (event && event.candidate && event.candidate.candidate) {
-                    let ipRegex = /([0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3})/;
-                    let match = ipRegex.exec(event.candidate.candidate);
-                    if (match) {
-                        document.getElementById("local-ip").innerText = match[1];
-                    }
-                    pc.close();
-                }
-            };
-        }
+      return (
+        <div className="flex justify-center items-center h-screen">
+          <div className="bg-white p-8 rounded-xl shadow-md max-w-sm w-full">
+            <h1 className="text-2xl font-semibold text-center mb-4">Real Heart Rate Checker</h1>
 
-        getIPDetails();
-        testPing();
-        testSpeed();
-        getLocalIP();
-    </script>
+            <div className="text-center">
+              {heartRate === null ? (
+                <button
+                  className="w-full bg-blue-500 text-white py-2 rounded-md"
+                  onClick={handleConnectClick}
+                >
+                  Connect to Heart Rate Monitor
+                </button>
+              ) : (
+                <>
+                  <h2 className="text-4xl font-bold text-blue-500 mb-4">{heartRate} bpm</h2>
+                  <p className="text-lg font-medium">{message}</p>
+                </>
+              )}
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    // Rendering the App Component into the 'root' div
+    ReactDOM.render(<App />, document.getElementById('root'));
+
+  </script>
+
 </body>
 </html>
