@@ -3,107 +3,56 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dropzone File Upload with Progress Bar</title>
+    <title>3D Progress Bar - React & Tailwind</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/dropzone/5.7.0/dropzone.min.css" rel="stylesheet">
+    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Signika:wght@400;600&display=swap');
-
         body {
-            font-family: 'Signika', sans-serif;
             background: linear-gradient(135deg, #1e3a8a, #2563eb, #60a5fa);
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            overflow: hidden;
+            font-family: 'Arial', sans-serif;
         }
-
-        .fade-in {
-            opacity: 0;
-            transform: translateY(50px);
-            animation: fadeInUp 1s forwards;
+        .progress-container {
+            perspective: 1000px;
         }
-
-        @keyframes fadeInUp {
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+        .progress-bar {
+            transform: rotateX(15deg);
+            transition: width 0.5s ease-in-out;
         }
     </style>
 </head>
-<body>
+<body class="flex justify-center items-center h-screen">
 
-    <div class="container mx-auto px-4 text-center">
-        <h1 class="text-white text-3xl font-bold mb-6 drop-shadow-lg">Dropzone.js File Uploader</h1>
+    <div id="root"></div>
 
-        <div class="bg-white p-6 rounded-lg shadow-lg max-w-lg mx-auto fade-in">
-            <form action="/file-upload" class="dropzone border-2 border-dashed border-blue-500 p-6 rounded-lg bg-gray-100" id="my-dropzone">
-                <div class="dz-message text-gray-500 text-lg font-semibold">
-                    Drag & Drop files here or click to upload
+    <script type="text/babel">
+        function ProgressBar() {
+            const [progress, setProgress] = React.useState(0);
+
+            React.useEffect(() => {
+                const interval = setInterval(() => {
+                    setProgress(prev => (prev >= 100 ? 100 : prev + 5));
+                }, 500);
+                return () => clearInterval(interval);
+            }, []);
+
+            return (
+                <div className="w-96 bg-gray-200 rounded-lg shadow-xl p-6 text-center progress-container">
+                    <h2 className="text-white text-2xl font-bold mb-4">3D Progress Bar</h2>
+                    <div className="w-full h-8 bg-gray-300 rounded-full overflow-hidden relative shadow-lg">
+                        <div 
+                            className="h-full bg-blue-500 progress-bar text-white text-sm font-bold flex items-center justify-center"
+                            style={{ width: `${progress}%` }}
+                        >
+                            {progress}%
+                        </div>
+                    </div>
                 </div>
-            </form>
+            );
+        }
 
-            <!-- Progress Bar -->
-            <div class="w-full bg-gray-200 rounded-full h-4 mt-4 hidden" id="progressContainer">
-                <div class="bg-blue-500 h-4 rounded-full text-center text-xs text-white font-bold" style="width: 0%;" id="progressBar">0%</div>
-            </div>
-
-            <button id="uploadButton" class="mt-4 w-full bg-blue-500 text-white font-semibold py-2 px-4 rounded hover:bg-blue-700 transition">
-                Start Upload
-            </button>
-        </div>
-    </div>
-
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/dropzone/5.7.0/dropzone.min.js"></script>
-    <script>
-        Dropzone.options.myDropzone = {
-            url: "/file-upload",
-            maxFilesize: 5, 
-            acceptedFiles: "image/*",
-            addRemoveLinks: true,
-            autoProcessQueue: false, 
-            dictDefaultMessage: "Drag & drop or click to upload",
-            dictRemoveFile: "Remove",
-            dictFileTooBig: "File too large (max: 5MB)",
-            dictInvalidFileType: "Invalid file type (only images allowed)",
-            init: function() {
-                var myDropzone = this;
-                var progressBar = document.getElementById("progressBar");
-                var progressContainer = document.getElementById("progressContainer");
-
-                // File added event
-                this.on("addedfile", function() {
-                    progressContainer.classList.remove("hidden");
-                    progressBar.style.width = "0%";
-                    progressBar.textContent = "0%";
-                });
-
-                // Upload progress event
-                this.on("uploadprogress", function(file, progress) {
-                    progressBar.style.width = progress + "%";
-                    progressBar.textContent = Math.round(progress) + "%";
-                });
-
-                // Upload success
-                this.on("success", function(file) {
-                    progressBar.style.backgroundColor = "#10B981"; // Green on success
-                    alert("Upload successful!");
-                });
-
-                // Upload error
-                this.on("error", function(file, message) {
-                    progressBar.style.backgroundColor = "#EF4444"; // Red on error
-                    alert("Upload failed: " + message);
-                });
-
-                // Upload button click event
-                document.getElementById('uploadButton').addEventListener('click', function() {
-                    myDropzone.processQueue(); 
-                });
-            }
-        };
+        ReactDOM.createRoot(document.getElementById("root")).render(<ProgressBar />);
     </script>
 
 </body>
