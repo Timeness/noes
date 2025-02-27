@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CDN Demo Page with 15 Additional Libraries</title>
+    <link href="https://fonts.googleapis.com/css2?family=Signika&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@3.0.23/dist/tailwind.min.css" rel="stylesheet">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/giphy-js@2.0.1/dist/giphy.min.js"></script>
+    <script src="https://code.highcharts.com/highcharts.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/forms@0.3.2/dist/forms.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/dropzone@5.7.0/dist/min/dropzone.min.css" />
+    <script src="https://cdn.jsdelivr.net/npm/dropzone@5.7.0/dist/min/dropzone.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick.css"/>
+    <script src="https://cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/magnific-popup.js/1.1.0/magnific-popup.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/magnific-popup.js/1.1.0/jquery.magnific-popup.min.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/css/toastr.min.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/js/toastr.min.js"></script>
+    <style>
+        body {
+            font-family: 'Signika', sans-serif;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container mt-5">
+        <h1 class="text-center text-3xl mb-4">CDN Demo Page with 15 Additional Libraries</h1>
+
+        <div class="mt-5">
+            <p id="moment-time"></p>
+        </div>
+
+        <div id="map" style="height: 400px; width: 100%;" class="mt-5"></div>
+
+        <div class="mt-5">
+            <input type="text" id="gifSearch" placeholder="Search for GIFs" class="form-control">
+            <div id="giphyResults" class="mt-3"></div>
+        </div>
+
+        <div id="chartContainer" class="mt-5" style="height: 400px;"></div>
+
+        <div class="mt-5">
+            <label for="tailwindInput" class="block">Tailwind Forms Input:</label>
+            <input type="text" id="tailwindInput" class="form-input mt-2 block w-full" placeholder="Enter text">
+        </div>
+
+        <div class="mt-5">
+            <form action="/upload" class="dropzone" id="dropzoneFileUpload"></form>
+        </div>
+
+        <div data-aos="fade-up" class="mt-5">
+            <h3>Scroll to see AOS effect</h3>
+            <p>This content will fade in as you scroll.</p>
+        </div>
+
+        <div class="mt-5">
+            <canvas id="chartJSExample" width="400" height="200"></canvas>
+        </div>
+
+        <div class="slick-carousel mt-5">
+            <div><img src="https://via.placeholder.com/300x150" alt="Image 1" /></div>
+            <div><img src="https://via.placeholder.com/300x150" alt="Image 2" /></div>
+            <div><img src="https://via.placeholder.com/300x150" alt="Image 3" /></div>
+        </div>
+
+        <button id="swalBtn" class="bg-red-500 text-white py-2 px-4 rounded mt-5">Show SweetAlert</button>
+
+        <a href="https://via.placeholder.com/600x400" class="popup-link mt-5">Open Image in Lightbox</a>
+    </div>
+
+    <script>
+        $(document).ready(function() {
+            $('#moment-time').text('Current Time: ' + moment().format('MMMM Do YYYY, h:mm:ss a'));
+        });
+    </script>
+
+    <script>
+        var map = L.map('map').setView([51.505, -0.09], 13);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        }).addTo(map);
+        L.marker([51.5, -0.09]).addTo(map)
+            .bindPopup('A simple marker.')
+            .openPopup();
+    </script>
+
+    <script>
+        var giphy = new GiphyApi('YOUR_API_KEY');
+
+        $('#gifSearch').on('input', function() {
+            var query = $(this).val();
+            giphy.search(query, { limit: 5 }).then(response => {
+                var gifs = response.data;
+                $('#giphyResults').empty();
+                gifs.forEach(gif => {
+                    var img = $('<img>').attr('src', gif.images.fixed_height.url);
+                    $('#giphyResults').append(img);
+                });
+            });
+        });
+    </script>
+
+    <script>
+        Highcharts.chart('chartContainer', {
+            chart: {
+                type: 'line'
+            },
+            title: {
+                text: 'Monthly Sales Data'
+            },
+            xAxis: {
+                categories: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun']
+            },
+            yAxis: {
+                title: {
+                    text: 'Sales (in USD)'
+                }
+            },
+            series: [{
+                name: 'Sales',
+                data: [120, 150, 200, 170, 190, 250]
+            }]
+        });
+    </script>
+
+    <script>
+        Dropzone.options.dropzoneFileUpload = {
+            url: '/file-upload',
+            maxFilesize: 5,
+            acceptedFiles: '.jpg,.jpeg,.png,.gif',
+            dictDefaultMessage: 'Drag and drop files here to upload'
+        };
+    </script>
+
+    <script>
+        AOS.init();
+    </script>
+
+    <script>
+        var ctx = document.getElementById('chartJSExample').getContext('2d');
+        var chart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: ['Red', 'Blue', 'Yellow', 'Green', 'Purple'],
+                datasets: [{
+                    label: 'Votes',
+                    data: [12, 19, 3, 5, 2],
+                    backgroundColor: ['rgba(255, 99, 132, 0.2)', 'rgba(54, 162, 235, 0.2)', 'rgba(255, 206, 86, 0.2)', 'rgba(75, 192, 192, 0.2)', 'rgba(153, 102, 255, 0.2)'],
+                    borderColor: ['rgba(255, 99, 132, 1)', 'rgba(54, 162, 235, 1)', 'rgba(255, 206, 86, 1)', 'rgba(75, 192, 192, 1)', 'rgba(153, 102, 255, 1)'],
+                    borderWidth: 1
+                }]
+            }
+        });
+    </script>
+
+    <script>
+        $('.slick-carousel').slick({
+            autoplay: true,
+            autoplaySpeed: 2000,
+            arrows: true
+        });
+    </script>
+
+    <script>
+        document.getElementById('swalBtn').addEventListener('click', function() {
+            Swal.fire({
+                title: 'Alert!',
+                text: 'This is a custom SweetAlert!',
+                icon: 'warning',
+                confirmButtonText: 'OK'
+            });
+        });
+    </script>
+
+</body>
+</html>
