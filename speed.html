@@ -3,63 +3,77 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Speed Test</title>
-    
-    <!-- Google Font: Smooch Sans -->
-    <link href="https://fonts.googleapis.com/css2?family=Smooch+Sans:wght@400;700&display=swap" rel="stylesheet">
-    
-    <style>
-        body {
-            font-family: 'Smooch Sans', sans-serif;
-            text-align: center;
-            margin: 50px;
-        }
-        h2 {
-            font-size: 2rem;
-        }
-        #speed {
-            font-size: 1.5rem;
-            font-weight: bold;
-            color: #007BFF;
-        }
-        button {
-            padding: 10px 20px;
-            font-size: 1rem;
-            font-family: 'Smooch Sans', sans-serif;
-            cursor: pointer;
-            border: none;
-            background-color: #007BFF;
-            color: white;
-            border-radius: 5px;
-        }
-        button:hover {
-            background-color: #0056b3;
-        }
-    </style>
+    <title>Fingerprint Authentication with WebAuthn</title>
+    <script src="https://unpkg.com/react@17/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@17/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
 </head>
 <body>
+    <div id="root"></div>
 
-    <h2>Internet Speed Test</h2>
-    <button onclick="startSpeedTest()">Start Test</button>
-    <p><strong>Download Speed:</strong> <span id="download">0</span> Mbps</p>
-    <p><strong>Upload Speed:</strong> <span id="upload">0</span> Mbps</p>
-    <p><strong>Ping:</strong> <span id="ping">0</span> ms</p>
+    <script type="text/babel">
+        function FingerprintAuth() {
+            const [authData, setAuthData] = React.useState(null);
+            const [error, setError] = React.useState(null);
 
-    <!-- LibreSpeed Speed Test -->
-    <script src="https://cdn.jsdelivr.net/gh/librespeed/speedtest/speedtest.js"></script>
-    <script>
-        function startSpeedTest() {
-            var s = new Speedtest();
+            async function authenticate() {
+                try {
+                    setError(null);
+                    setAuthData(null);
 
-            s.onupdate = function(data) {
-                document.getElementById("download").innerText = (data.dlStatus).toFixed(2);
-                document.getElementById("upload").innerText = (data.ulStatus).toFixed(2);
-                document.getElementById("ping").innerText = data.pingStatus;
-            };
+                    // Create a credential creation options object
+                    const publicKey = {
+                        challenge: new Uint8Array(32), // Random challenge
+                        rp: { name: "My App" },
+                        user: {
+                            id: new Uint8Array(16), // Unique user ID
+                            name: "user@example.com",
+                            displayName: "User Example"
+                        },
+                        pubKeyCredParams: [{ type: "public-key", alg: -7 }],
+                        authenticatorSelection: {
+                            authenticatorAttachment: "platform", // Uses fingerprint scanner
+                            requireResidentKey: false,
+                            userVerification: "required"
+                        },
+                        timeout: 60000
+                    };
 
-            s.start();
+                    // Request fingerprint authentication
+                    const credential = await navigator.credentials.create({ publicKey });
+
+                    if (credential) {
+                        setAuthData({
+                            id: credential.id,
+                            type: credential.type,
+                            rawId: btoa(String.fromCharCode(...new Uint8Array(credential.rawId)))
+                        });
+                    }
+                } catch (err) {
+                    setError(err.message);
+                }
+            }
+
+            return (
+                <div style={{ textAlign: "center", marginTop: "50px" }}>
+                    <h2>Fingerprint Authentication</h2>
+                    <button onClick={authenticate}>Authenticate with Fingerprint</button>
+                    
+                    {authData && (
+                        <div>
+                            <h3>Authentication Successful</h3>
+                            <p><strong>ID:</strong> {authData.id}</p>
+                            <p><strong>Type:</strong> {authData.type}</p>
+                            <p><strong>Raw ID:</strong> {authData.rawId}</p>
+                        </div>
+                    )}
+
+                    {error && <p style={{ color: "red" }}>Error: {error}</p>}
+                </div>
+            );
         }
-    </script>
 
+        ReactDOM.render(<FingerprintAuth />, document.getElementById("root"));
+    </script>
 </body>
 </html>
