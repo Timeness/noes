@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fingerprint Authentication</title>
+    <script src="https://unpkg.com/react@17/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@17/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        function FingerprintAuth() {
+            const [authData, setAuthData] = React.useState(null);
+            const [error, setError] = React.useState(null);
+
+            async function authenticate() {
+                try {
+                    setError(null);
+                    setAuthData(null);
+
+                    const publicKey = {
+                        challenge: new Uint8Array(32),
+                        rp: { name: "My Secure App" },
+                        user: {
+                            id: new Uint8Array(16),
+                            name: "user@example.com",
+                            displayName: "User Example"
+                        },
+                        pubKeyCredParams: [{ type: "public-key", alg: -7 }],
+                        authenticatorSelection: {
+                            authenticatorAttachment: "platform",
+                            requireResidentKey: false,
+                            userVerification: "required"
+                        },
+                        timeout: 60000
+                    };
+
+                    const credential = await navigator.credentials.create({ publicKey });
+
+                    if (credential) {
+                        setAuthData({
+                            id: credential.id,
+                            type: credential.type,
+                            rawId: btoa(String.fromCharCode(...new Uint8Array(credential.rawId))),
+                            clientDataJSON: JSON.parse(new TextDecoder().decode(credential.response.clientDataJSON)),
+                            authenticatorData: btoa(String.fromCharCode(...new Uint8Array(credential.response.authenticatorData))),
+                        });
+                    }
+                } catch (err) {
+                    setError(err.message);
+                }
+            }
+
+            return (
+                <div style={{ textAlign: "center", marginTop: "50px" }}>
+                    <h2>Fingerprint Authentication</h2>
+                    <button onClick={authenticate}>Authenticate with Fingerprint</button>
+
+                    {authData && (
+                        <div>
+                            <h3>Authentication Successful</h3>
+                            <p><strong>ID:</strong> {authData.id}</p>
+                            <p><strong>Type:</strong> {authData.type}</p>
+                            <p><strong>Raw ID:</strong> {authData.rawId}</p>
+                            <p><strong>Challenge:</strong> {authData.clientDataJSON.challenge}</p>
+                            <p><strong>Origin:</strong> {authData.clientDataJSON.origin}</p>
+                            <p><strong>Authenticator Data:</strong> {authData.authenticatorData}</p>
+                        </div>
+                    )}
+
+                    {error && <p style={{ color: "red" }}>Error: {error}</p>}
+                </div>
+            );
+        }
+
+        ReactDOM.render(<FingerprintAuth />, document.getElementById("root"));
+    </script>
+</body>
+</html>
